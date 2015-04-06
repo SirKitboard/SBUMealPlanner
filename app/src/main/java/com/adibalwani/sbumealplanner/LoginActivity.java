@@ -22,10 +22,10 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
@@ -45,6 +45,7 @@ public class LoginActivity extends ActionBarActivity {
 	RequestTask requestTask;
 	String html;
 	String url1;
+	String url2;
 	String skey;
 
 	@Override
@@ -64,57 +65,21 @@ public class LoginActivity extends ActionBarActivity {
 		});
 	}
 
-	public void getSkey(String result) {
+	public void getSkey(Document document) {
 		String username = usernameEdit.getText().toString().trim();
 		String password = passwordEdit.getText().toString().trim();
 		boolean fail = false;
-		try {
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-			Document document = docBuilder.parse(new ByteArrayInputStream(result.getBytes("UTF-8")));
 
-			NodeList formNodes = document.getElementsByTagName("input");
-			for(int i=0;i<formNodes.getLength();i++) {
-				Node node = formNodes.item(i);
-				Element element = (Element) formNodes.item(i);
-				if(element.getAttribute("name").equalsIgnoreCase("skey")) {
-					skey = element.getAttribute("value");
-					Toast.makeText(getApplicationContext(), skey, Toast.LENGTH_SHORT).show();
-				}
-				else {
-					Toast.makeText(getApplicationContext(), element.getAttribute("name"),Toast.LENGTH_SHORT).show();
-				}
+		Elements formNodes = document.getElementsByTag("input");
+		//Toast.makeText(getApplicationContext(),formNodes.size() + "",Toast.LENGTH_SHORT).show();
+		for(int i=0;i<formNodes.size();i++) {
+			Element element = formNodes.get(i);
+			if(element.attr("name").equalsIgnoreCase("skey")) {
+				skey = element.attr("value");
+				Toast.makeText(getApplicationContext(), skey, Toast.LENGTH_SHORT).show();
 			}
-					
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-//		if (username.length() == 0) {
-//			usernameEdit.setError("Invalid username");
-//			fail = true;
-//		}
-//		if (!fail) {
-//			ParseUser.logInInBackground(username, password, new LogInCallback() {
-//				@Override
-//				public void done(ParseUser user, ParseException e) {
-//					if (e != null) {
-//						// Show the error message
-//						Toast.makeText(LoginActivity.this, e.getMessage(),
-//								Toast.LENGTH_LONG).show();
-//					} else {
-//						// Start an intent for the dispatch activity
-//						user.put("remember",false);
-//						Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
-//						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-//						startActivity(intent);
-//					}
-//				}
-//			});
-//		}
+		requestTask = new RequestTask();
 	}
 
 	@Override
@@ -144,45 +109,52 @@ public class LoginActivity extends ActionBarActivity {
 	}
 
 	class RequestTask extends AsyncTask<String, String, String> {
-		String response2;
+		Document document;
 
 		@Override
 		protected String doInBackground(String... uri) {
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpResponse response;
-			String responseString = null;
 			try {
-				response = httpclient.execute(new HttpGet(uri[0]));
-				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					response.getEntity().writeTo(out);
-					out.close();
-					responseString = out.toString();
-				} else {
-					//Closes the connection.
-					response.getEntity().getContent().close();
-					throw new IOException(statusLine.getReasonPhrase());
-				}
-			} catch (ClientProtocolException e) {
-
-			} catch (IOException e) {
-
+				document = Jsoup.connect(url1).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
+			}  catch (IOException e) {
+				return "fail";
 			}
-			response2 = responseString;
-			return responseString;
+
+			return "success";
+
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			html = result;
-			Toast.makeText(getApplicationContext(),"Task complete",Toast.LENGTH_SHORT).show();
-			getSkey(result);
+			if(result.equalsIgnoreCase("success")) {
+				getSkey(document);
+			}
+
+		}
+	}
+
+	class LoginPostTask extends AsyncTask<String, String, String> {
+		Document document;
+
+		@Override
+		protected String doInBackground(String... uri) {
+			try {
+				document = Jsoup.connect(url1).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
+			}  catch (IOException e) {
+				return "fail";
+			}
+
+			return "success";
+
 		}
 
-		public String getResponse() {
-			return response2;
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			if(result.equalsIgnoreCase("success")) {
+				getSkey(document);
+			}
+
 		}
 	}
 
