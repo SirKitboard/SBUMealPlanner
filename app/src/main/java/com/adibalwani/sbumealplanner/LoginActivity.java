@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +23,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -46,7 +49,6 @@ public class LoginActivity extends ActionBarActivity {
 	String html;
 	String url1;
 	String url2;
-	String skey;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,17 +71,37 @@ public class LoginActivity extends ActionBarActivity {
 		String username = usernameEdit.getText().toString().trim();
 		String password = passwordEdit.getText().toString().trim();
 		boolean fail = false;
-
+		Elements forms = document.getElementsByTag("form");
+		url2 = forms.attr("action");
+		String formUrl = url2;
+		String cid = "129";
+		String save = "1";
+		String wason = "";
+		String skey = "";
 		Elements formNodes = document.getElementsByTag("input");
 		//Toast.makeText(getApplicationContext(),formNodes.size() + "",Toast.LENGTH_SHORT).show();
 		for(int i=0;i<formNodes.size();i++) {
 			Element element = formNodes.get(i);
 			if(element.attr("name").equalsIgnoreCase("skey")) {
 				skey = element.attr("value");
-				Toast.makeText(getApplicationContext(), skey, Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), skey, Toast.LENGTH_SHORT).show();
 			}
 		}
+		LoginTask loginTask= new LoginTask();
+		loginTask.execute(url2,cid,skey,save,wason,username,password);
 		requestTask = new RequestTask();
+	}
+
+	public void getBalance(Connection.Response res) {
+		try {
+			Document doc = res.parse();
+			Elements scripts = doc.getElementsByTag("script");
+			if()
+			for(int i=0;i<scripts.size();i++)
+				Log.e("Response",scripts.get(i).toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -114,7 +136,7 @@ public class LoginActivity extends ActionBarActivity {
 		@Override
 		protected String doInBackground(String... uri) {
 			try {
-				document = Jsoup.connect(url1).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
+				document = Jsoup.connect(uri[0]).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
 			}  catch (IOException e) {
 				return "fail";
 			}
@@ -133,13 +155,16 @@ public class LoginActivity extends ActionBarActivity {
 		}
 	}
 
-	class LoginPostTask extends AsyncTask<String, String, String> {
-		Document document;
-
+	class LoginTask extends AsyncTask<String, String, String> {
+		Connection.Response res;
 		@Override
 		protected String doInBackground(String... uri) {
 			try {
-				document = Jsoup.connect(url1).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
+				res = Jsoup
+						.connect(uri[0])
+						.data("cid", uri[1], "skey", uri[2],"save",uri[3],"wason",uri[4],"loginphrase",uri[5],"password",uri[6])
+						.method(Connection.Method.POST)
+						.execute();
 			}  catch (IOException e) {
 				return "fail";
 			}
@@ -152,10 +177,11 @@ public class LoginActivity extends ActionBarActivity {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if(result.equalsIgnoreCase("success")) {
-				getSkey(document);
+				getBalance(res);
 			}
 
 		}
 	}
+
 
 }
