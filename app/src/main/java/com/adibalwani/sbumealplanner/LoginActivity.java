@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,11 +50,13 @@ public class LoginActivity extends ActionBarActivity {
 	String html;
 	String url1;
 	String url2;
-
+	String skey;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
+		Toolbar mToolBar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolBar);
 		usernameEdit = (EditText) findViewById(R.id.login_username);
 		passwordEdit = (EditText) findViewById(R.id.login_password);
 		mActionButtom = (Button) findViewById(R.id.login_button);
@@ -77,7 +80,7 @@ public class LoginActivity extends ActionBarActivity {
 		String cid = "129";
 		String save = "1";
 		String wason = "";
-		String skey = "";
+		skey = "";
 		Elements formNodes = document.getElementsByTag("input");
 		//Toast.makeText(getApplicationContext(),formNodes.size() + "",Toast.LENGTH_SHORT).show();
 		for(int i=0;i<formNodes.size();i++) {
@@ -96,9 +99,15 @@ public class LoginActivity extends ActionBarActivity {
 		try {
 			Document doc = res.parse();
 			Elements scripts = doc.getElementsByTag("script");
-			if()
-			for(int i=0;i<scripts.size();i++)
-				Log.e("Response",scripts.get(i).toString());
+			//if()
+			Log.e("Response", scripts.get(0).toString());
+			if(scripts.get(0).toString().contains("window.location.href='/login.php")) {
+
+				Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+				intent.putExtra("skey", skey);
+				startActivity(intent);
+				finish();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
