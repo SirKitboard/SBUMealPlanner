@@ -1,6 +1,7 @@
 package com.adibalwani.sbumealplanner;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ public class MainActivity extends ActionBarActivity {
 	String skey;
 	String urlBalance;
 	String urlLogin;
+	String urlLogout;
 	ProgressDialog dialog;
 	BalanceRequestTask brt;
 
@@ -35,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
 		setSupportActionBar(mToolBar);
 		urlLogin = "https://services.jsatech.com/login.php?skey=" + skey + "&cid=129&fullscreen=1&wason=";
 		urlBalance = "https://services.jsatech.com/index.php?skey=" + skey + "&cid=129&fullscreen=1&wason=";
+		urlLogout = "https://services.jsatech.com/logout.php?skey=" + skey + "&cid=129&goto=index.php?cid=129";
 		dialog = ProgressDialog.show(MainActivity.this, "", "Loading. Please wait...", true);
 		BackgroundLoginTask blt = new BackgroundLoginTask();
 		blt.execute(urlLogin);
@@ -56,10 +59,18 @@ public class MainActivity extends ActionBarActivity {
 		int id = item.getItemId();
 
 		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_logout) {
+			LogoutTask logout = new LogoutTask();
+			logout.execute(urlLogout);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	public void logoutComplete() {
+		Intent intent = new Intent(this, LoginActivity.class);
+		startActivity(intent);
+		finish();
 	}
 
 	public void requestSuccess(Document document) {
@@ -151,6 +162,25 @@ public class MainActivity extends ActionBarActivity {
 			else {
 				finish();
 			}
+		}
+	}
+
+	class LogoutTask extends AsyncTask<String, String, String> {
+		@Override
+		protected String doInBackground(String...uri) {
+			try {
+				Document document = Jsoup.connect(uri[0]).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
+			}  catch (IOException e) {
+				return "fail";
+			}
+
+			return "success";
+		}
+
+
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			logoutComplete();
 		}
 	}
 }

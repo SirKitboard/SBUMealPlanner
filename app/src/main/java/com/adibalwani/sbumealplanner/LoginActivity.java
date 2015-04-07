@@ -1,6 +1,7 @@
 package com.adibalwani.sbumealplanner;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -10,41 +11,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.parse.LogInCallback;
-import com.parse.ParseException;
-import com.parse.ParseUser;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.xml.sax.SAXException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 
 public class LoginActivity extends ActionBarActivity {
-	EditText usernameEdit;
-	EditText passwordEdit;
-	EditText passwordConfirmEdit;
+	EditText mUsernameEdit;
+	EditText mPasswordEdit;
+	CheckBox mRememberMe;
 	Button mActionButtom;
 	RequestTask requestTask;
 	String html;
@@ -57,9 +39,23 @@ public class LoginActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_login);
 		Toolbar mToolBar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolBar);
-		usernameEdit = (EditText) findViewById(R.id.login_username);
-		passwordEdit = (EditText) findViewById(R.id.login_password);
+		SharedPreferences settings = getApplicationContext().getSharedPreferences("com.adibalwani.sbumealplanner", 0);
+		String username = settings.getString("username","");
+		String password = settings.getString("password","");
+		boolean remember = settings.getBoolean("remember",false);
+		mUsernameEdit = (EditText) findViewById(R.id.login_username);
+		mPasswordEdit = (EditText) findViewById(R.id.login_password);
 		mActionButtom = (Button) findViewById(R.id.login_button);
+		mRememberMe = (CheckBox) findViewById(R.id.remember);
+		if(!username.equalsIgnoreCase("")) {
+			mUsernameEdit.setText(username);
+		}
+		if(!password.equalsIgnoreCase("")) {
+			mPasswordEdit.setText(password);
+		}
+		if(remember) {
+			mRememberMe.setChecked(true);
+		}
 		requestTask = new RequestTask();
 		url1 = "https://services.jsatech.com/login.php?cid=129&";
 		mActionButtom.setOnClickListener(new View.OnClickListener() {
@@ -71,9 +67,8 @@ public class LoginActivity extends ActionBarActivity {
 	}
 
 	public void getSkey(Document document) {
-		String username = usernameEdit.getText().toString().trim();
-		String password = passwordEdit.getText().toString().trim();
-		boolean fail = false;
+		String username = mUsernameEdit.getText().toString().trim();
+		String password = mPasswordEdit.getText().toString().trim();
 		Elements forms = document.getElementsByTag("form");
 		url2 = forms.attr("action");
 		String formUrl = url2;
@@ -91,7 +86,7 @@ public class LoginActivity extends ActionBarActivity {
 			}
 		}
 		LoginTask loginTask= new LoginTask();
-		loginTask.execute(url2,cid,skey,save,wason,username,password);
+		loginTask.execute(formUrl,cid,skey,save,wason,username,password);
 		requestTask = new RequestTask();
 	}
 
@@ -102,7 +97,19 @@ public class LoginActivity extends ActionBarActivity {
 			//if()
 			Log.e("Response", scripts.get(0).toString());
 			if(scripts.get(0).toString().contains("window.location.href='/login.php")) {
-
+				SharedPreferences settings = getApplicationContext().getSharedPreferences("com.adibalwani.sbumealplanner", 0);
+				SharedPreferences.Editor editor = settings.edit();
+				if(mRememberMe.isChecked()) {
+					editor.putString("username",mUsernameEdit.getText().toString());
+					editor.putString("password",mPasswordEdit.getText().toString());
+					editor.putBoolean("remember",true);
+				}
+				else {
+					editor.remove("username");
+					editor.remove("password");
+					editor.putBoolean("remember",false);
+				}
+				editor.apply();
 				Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 				intent.putExtra("skey", skey);
 				startActivity(intent);
@@ -124,13 +131,9 @@ public class LoginActivity extends ActionBarActivity {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
+		//int id = item.getItemId();
 
 		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
-		}
-
 		return super.onOptionsItemSelected(item);
 	}
 
