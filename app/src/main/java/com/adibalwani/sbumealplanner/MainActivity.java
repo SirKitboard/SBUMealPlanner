@@ -307,7 +307,10 @@ public class MainActivity extends AppCompatActivity {
 
 	class StallTask extends AsyncTask<String, String, String> {
 		@Override
-		protected String doInBackground(String...uri) bash
+		protected String doInBackground(String...uri) {
+			Log.d("Stall", "yes");
+			return "success";
+		}
 
 
 		protected void onPostExecute(String result) {
