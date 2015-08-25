@@ -1,11 +1,11 @@
 package com.adibalwani.sbumealplanner;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -22,8 +24,15 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
-public class LoginActivity extends ActionBarActivity {
+
+public class LoginActivity extends AppCompatActivity {
 	EditText mUsernameEdit;
 	EditText mPasswordEdit;
 	CheckBox mRememberMe;
@@ -37,11 +46,10 @@ public class LoginActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		Toolbar mToolBar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(mToolBar);
 		SharedPreferences settings = getApplicationContext().getSharedPreferences("com.adibalwani.sbumealplanner", 0);
 		String username = settings.getString("username","");
 		String password = settings.getString("password","");
+		//Log.e("Pass", password);
 		boolean remember = settings.getBoolean("remember",false);
 		mUsernameEdit = (EditText) findViewById(R.id.login_username);
 		mPasswordEdit = (EditText) findViewById(R.id.login_password);
@@ -62,8 +70,39 @@ public class LoginActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				requestTask.execute(url1);
+				requestTask = new RequestTask();
 			}
 		});
+	}
+
+	private void setTrustAllCerts() throws Exception
+	{
+		TrustManager[] trustAllCerts = new TrustManager[]{
+				new X509TrustManager() {
+					public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+						return null;
+					}
+					public void checkClientTrusted( java.security.cert.X509Certificate[] certs, String authType ) {	}
+					public void checkServerTrusted( java.security.cert.X509Certificate[] certs, String authType ) {	}
+				}
+		};
+
+		// Install the all-trusting trust manager
+		try {
+			SSLContext sc = SSLContext.getInstance("SSL");
+			sc.init( null, trustAllCerts, new java.security.SecureRandom() );
+			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			HttpsURLConnection.setDefaultHostnameVerifier(
+					new HostnameVerifier() {
+						public boolean verify(String urlHostName, SSLSession session) {
+							return true;
+						}
+					});
+		}
+		catch ( Exception e ) {
+			//We can not recover from this exception.
+			e.printStackTrace();
+		}
 	}
 
 	public void getSkey(Document document) {
@@ -148,8 +187,15 @@ public class LoginActivity extends ActionBarActivity {
 		@Override
 		protected String doInBackground(String... uri) {
 			try {
-				document = Jsoup.connect(uri[0]).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
+				document = Jsoup.connect(url1).ignoreHttpErrors(true).get();//docBuilder.parse(new ByteArrayInputStream(result.getBytes(SA)));
 			}  catch (IOException e) {
+				try {
+					setTrustAllCerts();
+					requestTask = new RequestTask();
+					requestTask.execute(url1);
+				} catch (Exception e1) {
+					Toast.makeText(getApplicationContext(), e1.getMessage(), Toast.LENGTH_SHORT).show();
+				}
 				return "fail";
 			}
 
@@ -178,6 +224,7 @@ public class LoginActivity extends ActionBarActivity {
 						.method(Connection.Method.POST)
 						.execute();
 			}  catch (IOException e) {
+				Log.e("FAIL", "Request 2");
 				return "fail";
 			}
 
