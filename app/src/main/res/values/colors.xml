@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="red" >#FF0000</color>
-	<color name="redDark">#AA0000</color>
-	<color name="white">#FFFFFF</color>
-	<color name="darkGrey">#222222</color>
-	<color name="superLightGrey">#DDDDDD</color>
-	<color name="grey">#777777</color>
-	<color name="black">#000000</color>
+	<color name="window_background">#EEEEEE</color>
+	<color name="primary">#AA0000</color>
+	<color name="primary_dark">#770000</color>
+	<color name="primary_light">#CC0000</color>
+	<color name="accent">#FF0000</color>
+	<color name="primary_text">#FFFFFF</color>
+	<color name="secondary_text">#DDDDDD</color>
+	<color name="alt_text">#222222</color>
+	<color name="icons">#FFFFFF</color>
+	<color name="divider">#888888</color>
 </resources>

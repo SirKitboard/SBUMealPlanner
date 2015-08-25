@@ -1,34 +1,31 @@
-package com.adibalwani.sbumealplanner;
+package com.adibalwani.sbumealplanner.activities;
 
-import android.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.adibalwani.sbumealplanner.fragments.MainActivity.BookstoreFragmenTab;
+import com.adibalwani.sbumealplanner.fragments.MainActivity.MealPlanFragmenTab;
+import com.adibalwani.sbumealplanner.R;
+import com.adibalwani.sbumealplanner.fragments.MainActivity.WolfieFragmenTab;
+import com.adibalwani.sbumealplanner.util.MainFragmentPagerAdapter;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -48,7 +45,14 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		skey = this.getIntent().getExtras().getString("skey");
 		setContentView(R.layout.activity_main);
-		mViewPager = (ViewPager) findViewById(R.id.pager);
+
+		getSupportActionBar().setElevation(0);
+		ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+		MainFragmentPagerAdapter pagerAdapter =
+				new MainFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+		viewPager.setAdapter(pagerAdapter);
+
+		mViewPager = (ViewPager) findViewById(R.id.viewpager);
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 		mViewPager.setOffscreenPageLimit(2);

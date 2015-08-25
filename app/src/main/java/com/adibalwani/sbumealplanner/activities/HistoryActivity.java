@@ -1,9 +1,11 @@
-package com.adibalwani.sbumealplanner;
+package com.adibalwani.sbumealplanner.activities;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.adibalwani.sbumealplanner.R;
 
 
 public class HistoryActivity extends ActionBarActivity {

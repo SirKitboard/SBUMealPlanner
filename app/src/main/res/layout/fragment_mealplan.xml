@@ -8,7 +8,7 @@
 	android:paddingBottom="@dimen/activity_vertical_margin"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	tools:context="com.adibalwani.sbumealplanner.MealPlanFragmenTab"
+	tools:context="com.adibalwani.sbumealplanner.fragments.MainActivity.MealPlanFragmenTab"
 	>
 
 	<TextView

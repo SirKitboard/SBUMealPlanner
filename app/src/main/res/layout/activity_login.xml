@@ -2,8 +2,6 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-	<include layout="@layout/toolbar"
-	         android:id="@+id/toolbar"/>
 
 	<RelativeLayout android:layout_width="match_parent"
 					android:layout_height="match_parent"
@@ -26,7 +24,7 @@
 			android:layout_alignParentStart="true"
 			android:layout_alignParentRight="true"
 			android:layout_alignParentEnd="true"
-			android:textColor="@color/black"/>
+			android:textColor="#222222"/>
 
 		<EditText
 			android:layout_width="wrap_content"
@@ -40,7 +38,7 @@
 			android:layout_alignParentStart="true"
 			android:layout_alignParentRight="true"
 			android:layout_alignParentEnd="true"
-			android:textColor="@color/black"/>
+			android:textColor="#222222"/>
 
 		<Button
 			android:layout_width="wrap_content"

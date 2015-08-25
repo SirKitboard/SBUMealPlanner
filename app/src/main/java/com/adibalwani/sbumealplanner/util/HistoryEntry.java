@@ -1,4 +1,4 @@
-package com.adibalwani.sbumealplanner;
+package com.adibalwani.sbumealplanner.util;
 
 /**
  * Created by Aditya on 5/2/2015.
