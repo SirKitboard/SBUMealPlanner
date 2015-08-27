@@ -13,7 +13,16 @@ import com.adibalwani.sbumealplanner.R;
  */
 public class WolfieFragmenTab extends Fragment {
 
+	public int mPage;
+
 	public static final String ARG_PAGE = "ARG_PAGE";
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mPage = getArguments().getInt(ARG_PAGE);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {

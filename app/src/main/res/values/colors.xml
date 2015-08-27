@@ -7,7 +7,7 @@
 	<color name="accent">#FF0000</color>
 	<color name="primary_text">#FFFFFF</color>
 	<color name="secondary_text">#DDDDDD</color>
-	<color name="alt_text">#222222</color>
+	<color name="alt_text">#111111</color>
 	<color name="icons">#FFFFFF</color>
 	<color name="divider">#888888</color>
 </resources>

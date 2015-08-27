@@ -17,7 +17,8 @@
 		android:id="@+id/balanceText"
 		android:layout_alignParentTop="true"
 		android:layout_alignParentLeft="true"
-		android:layout_alignParentStart="true"/>
+		android:layout_alignParentStart="true"
+		android:textColor="@color/alt_text"/>
 
 	<TextView
 		android:layout_width="wrap_content"
@@ -27,5 +28,6 @@
 		android:id="@+id/bookBalance"
 		android:layout_alignParentTop="true"
 		android:layout_alignParentRight="true"
-		android:layout_alignParentEnd="true"/>
+		android:layout_alignParentEnd="true"
+		android:textColor="@color/alt_text"/>
 </RelativeLayout>

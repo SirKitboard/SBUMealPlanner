@@ -2,11 +2,11 @@ package com.adibalwani.sbumealplanner.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -37,9 +37,10 @@ public class MainActivity extends AppCompatActivity {
 	String crazyHTML;
 	ProgressDialog dialog;
 	BalanceRequestTask brt;
-	SectionsPagerAdapter mSectionsPagerAdapter;
 	ViewPager mViewPager;
 	boolean loaded = false;
+	TabLayout tabLayout;
+	SharedPreferences mSharedPreferences;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,19 +53,20 @@ public class MainActivity extends AppCompatActivity {
 				new MainFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this);
 		viewPager.setAdapter(pagerAdapter);
 
-		mViewPager = (ViewPager) findViewById(R.id.viewpager);
-		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-		mViewPager.setAdapter(mSectionsPagerAdapter);
-		mViewPager.setOffscreenPageLimit(2);
+		// Give the TabLayout the ViewPager
+		tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+		tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+		tabLayout.setupWithViewPager(viewPager);
+
 		urlLogin = "https://services.jsatech.com/login.php?skey=" + skey + "&cid=129&fullscreen=1&wason=";
 		urlBalance = "https://services.jsatech.com/index.php?skey=" + skey + "&cid=129&fullscreen=1&wason=";
 		urlLogout = "https://services.jsatech.com/logout.php?skey=" + skey + "&cid=129&goto=index.php?cid=129";
 		if(savedInstanceState!=null) {
 			loaded = savedInstanceState.getBoolean("loaded");
 			if(loaded) {
+
 				crazyHTML = savedInstanceState.getString("htmlData");
-				StallTask stallTask = new StallTask();
-				stallTask.execute("");
+				requestSuccess();
 			}
 		}
 		else if (!loaded){
@@ -131,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void loadBookstore() {
-		TextView balance = (TextView) findViewById(R.id.bookBalance);
-		balance.setText("$" + crazyHTML.substring(indexOfString(crazyHTML,"Current :",1) + "Current :".length(), crazyHTML.indexOf("</b>", indexOfString(crazyHTML,"Current :",1))));
+//		TextView balance = (TextView) findViewById(R.id.bookBalance);
+//		balance.setText("$" + crazyHTML.substring(indexOfString(crazyHTML,"Current :",1) + "Current :".length(), crazyHTML.indexOf("</b>", indexOfString(crazyHTML,"Current :",1))));
 	}
 
 	public int indexOfString(String source, String search, int index) {
@@ -251,75 +253,6 @@ public class MainActivity extends AppCompatActivity {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			logoutComplete();
-		}
-	}
-
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
-		MealPlanFragmenTab mealPlanFragmenTab = new MealPlanFragmenTab();
-		WolfieFragmenTab wolfieFragmenTab = new WolfieFragmenTab();
-		BookstoreFragmenTab bookstoreFragmenTab = new BookstoreFragmenTab();
-		public SectionsPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public android.support.v4.app.Fragment getItem(int position) {
-			// getItem is called to instantiate the fragment for the given page.
-			// Return a PlaceholderFragment (defined as a static inner class below).
-			switch (position) {
-				case 0:
-					return mealPlanFragmenTab;
-				case 1:
-					return wolfieFragmenTab;
-				case 2:
-					return bookstoreFragmenTab;
-			}
-			return null;
-
-//			if(position == 0) {
-//				return mealPlanFragmenTab;
-//			}
-//			else if(position == 1) {
-//				return wolfieFragmenTab;
-//			}
-//			else {
-//				return bookstoreFragmenTab;
-//			}
-
-		}
-
-		@Override
-		public int getCount() {
-			// Show 3 total pages.
-			return 3;
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			Locale l = Locale.getDefault();
-			switch (position) {
-				case 0:
-					return "Meal Plan".toUpperCase(l);
-				case 1:
-					return "Wolfie Wallet".toUpperCase(l);
-				case 2:
-					return "Bookstore Account".toUpperCase(l);
-			}
-			return null;
-		}
-	}
-
-	class StallTask extends AsyncTask<String, String, String> {
-		@Override
-		protected String doInBackground(String...uri) {
-			Log.d("Stall", "yes");
-			return "success";
-		}
-
-
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-			requestSuccess();
 		}
 	}
 
